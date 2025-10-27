@@ -6,19 +6,24 @@ View is used to render a view component, which is a container for other componen
 Text is used to render a text component, which is used to display text on the screen.
  */
 
-import {View, Text, Image, StyleSheet} from "react-native";
-import {formatDistanceToNowStrict} from "date-fns";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {View, Text, Image, StyleSheet, FlatList} from "react-native";
 import posts from '../../../assets/data/posts.json'
 import PostListItem from "../../components/PostListItem";
 
+const separator = () =>
+    <View style={{
+        height: StyleSheet.hairlineWidth*2,
+        backgroundColor: "#f1f1f1",
+    }}/>
+
 export default function HomeScreen() {
     return (
-        <View>
-            <PostListItem post={posts[0]}></PostListItem>
-            <PostListItem post={posts[1]}></PostListItem>
-            <PostListItem post={posts[2]}></PostListItem>
-            <PostListItem post={posts[3]}></PostListItem>
+        <View style={{flex: 1}}>
+            <FlatList
+                ItemSeparatorComponent={ separator }
+                data={posts}
+                renderItem={({item}) => <PostListItem post={item}/>}
+            />
         </View>
     );
 };

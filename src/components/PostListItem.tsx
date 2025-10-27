@@ -1,7 +1,6 @@
-import {View, Text, Image, StyleSheet} from "react-native";
+import {View, Text, Image, StyleSheet, Pressable} from "react-native";
 import {formatDistanceToNowStrict} from "date-fns";
-import {MaterialCommunityIcons} from "@expo/vector-icons";
-import posts from '../../assets/data/posts.json'
+import {Feather, MaterialCommunityIcons} from "@expo/vector-icons";
 import {Post} from "../types";
 
 type PostListItemProps = {
@@ -10,48 +9,126 @@ type PostListItemProps = {
 
 export default function PostListItem({post}: PostListItemProps) {
     return (
-        <View>
-            <View style={{paddingHorizontal: 15, paddingVertical: 10, gap:5}}>
+        <Pressable
+            style={({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => [
+                styles.centeredContainer,
+                hovered && {backgroundColor: "#f9f9f9"}
+            ]}
+            onPress={() => console.log("Post pressed")}
+        >
+            <View style={{paddingHorizontal: 15, paddingVertical: 10, gap: 10}}>
                 {/*{POST HEADER}*/}
                 <View style={{flexDirection: "row", gap: 10}}>
-                    <Image source={{uri: post.group.image}} style={styles.imageRoundSmall}/>
-                    <Text style={{fontWeight: "bold"}}>{post.group.name}</Text>
+                    <Pressable
+                        style={{flexDirection: "row", gap: 10}}
+                        onPress={() => console.log("Group pressed")}
+                    >
+                        <Image source={{uri: post.group.image}} style={styles.imageRoundSmall}/>
+                        <Text style={{fontWeight: "bold"}}>{post.group.name}</Text>
+                    </Pressable>
                     <Text style={{color: "grey"}}>{formatDistanceToNowStrict(new Date(post.created_at))}</Text>
-                    <View style={{marginLeft: "auto"}}>
+                    <Pressable
+                        style={{marginLeft: "auto"}}
+                        onPress={() => console.log("Join group pressed")}
+                    >
                         <Text style={styles.joinButtonText}>Join</Text>
-                    </View>
+                    </Pressable>
                 </View>
 
                 {/*CONTENT*/}
                 <View style={{gap: 5}}>
                     <Text style={styles.titleText}>{post.title}</Text>
-                    {post.image && <Image source={{uri: post.image}} style={styles.imageHalfRoundLarge}/>}
+                    {post.image &&
+                        <Pressable
+                            onPress={() => console.log("Image pressed")}
+                        >
+                            <Image source={{uri: post.image}} style={styles.imageHalfRoundLarge}/>
+                        </Pressable>
+                    }
                     {!post.image && post.description && <Text numberOfLines={4}>{post.description}</Text>}
                 </View>
 
                 {/*FOOTER*/}
-                <View style={{flexDirection: "row"}}>
-                    <MaterialCommunityIcons name="arrow-up-bold-outline" size={19} color="black"/>
-                    <Text>{post.upvotes}</Text>
-                    <MaterialCommunityIcons name="arrow-down-bold-outline" size={19} color="black"/>
-                    <MaterialCommunityIcons name="comment-outline" size={19} color="black"/>
-                    <Text>{post.nr_of_comments}</Text>
-                    <View style={{flexDirection:"row", marginLeft:"auto"}}>
-                        <MaterialCommunityIcons name="trophy-outline" size={19} color="black"/>
-                        <MaterialCommunityIcons name="share-outline" size={19} color="black"/>
+                <View style={{flexDirection: "row", gap: 12}}>
+                    {/* Combine the upvote and downvote icons under a single item with rounded corners */}
+                    <View style={[styles.roundedIcon, {overflow: "visible"}]}>
+                        <Pressable style={{borderRadius: 15}} onPress={() => console.log("Upvote pressed")}>
+                            {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (
+                                <View
+                                    style={[
+                                        styles.voteButton,
+                                        hovered && {backgroundColor: "#dbe4e7"},
+                                    ]}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="arrow-up-bold-outline"
+                                        size={19}
+                                        color={hovered ? "red" : "black"}
+                                    />
+                                </View>
+                            )}
+                        </Pressable>
+                        <Text style={{cursor: "auto"}}>{post.upvotes}</Text>
+                        <Pressable style={{borderRadius: 15}} onPress={() => console.log("Upvote pressed")}>
+                            {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (
+                                <View
+                                    style={[
+                                        styles.voteButton,
+                                        hovered && {backgroundColor: "#dbe4e7"},
+                                    ]}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="arrow-down-bold-outline"
+                                        size={19}
+                                        color={hovered ? "#6a5ccc" : "black"}
+                                    />
+                                </View>
+                            )}
+                        </Pressable>
                     </View>
+                    <Pressable
+                        style={({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => [
+                            styles.roundedIcon,
+                            hovered && styles.roundedIconHover,
+                            {paddingHorizontal: 10}
+                        ]}
+                        onPress={() => console.log("Comment pressed")}
+                    >
+                        <MaterialCommunityIcons name="comment-outline" size={19} color="black"/>
+                        <Text>{post.nr_of_comments}</Text>
+                    </Pressable>
+                    <Pressable
+                        style={({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => [
+                            styles.roundedIcon,
+                            hovered && styles.roundedIconHover,
+                            {paddingHorizontal: 10}
+                        ]}
+                        onPress={() => console.log("Award pressed")}
+                    >
+                        <Feather name="award" size={19} color="black"/>
+                    </Pressable>
+                    <Pressable
+                        style={({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => [
+                            styles.roundedIcon,
+                            hovered && styles.roundedIconHover,
+                            {paddingHorizontal: 10}
+                        ]}
+                        onPress={() => console.log("Share pressed")}
+                    >
+                        <MaterialCommunityIcons name="share-outline" size={19} color="black"/>
+                        <Text>Share</Text>
+                    </Pressable>
                 </View>
             </View>
-        </View>
-    )
+        </Pressable>
+    );
 };
 
 const styles = StyleSheet.create({
     centeredContainer: {
-        // --- KEY TO CENTERING ---
-        maxWidth: 800, // Limit the maximum width of the content
-        width: '100%',               // Ensure it fills up to the maxWidth
-        marginHorizontal: 'auto',    // Centers the block within its parent (the screen)
+        maxWidth: 800,
+        width: '100%',
+        marginHorizontal: 'auto',
         backgroundColor: 'white',
     },
     joinButtonText: {
@@ -69,6 +146,26 @@ const styles = StyleSheet.create({
         width: "100%", aspectRatio: 4 / 3, borderRadius: 15
     },
     titleText:{
-        fontWeight: "500", fontSize: 17, letterSpacing: 0.5,
-    }
+        fontWeight: "500", fontSize: 18, letterSpacing: 0.5,
+    },
+    roundedIcon: {
+        flexDirection: "row",
+        backgroundColor: "#e6e6e6",
+        borderRadius: 20,
+        gap: 5,
+        minHeight: 32,
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+    },
+    roundedIconHover: {
+        backgroundColor: "#dbe4e8",
+        borderColor: "#dbe4e8",
+    },
+    voteButton: {
+        padding:5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:15
+    },
 })
