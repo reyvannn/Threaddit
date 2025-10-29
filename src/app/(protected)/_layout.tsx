@@ -41,7 +41,7 @@ export default function AppLayout() {
                 name="post/[id]"
                 options={{
                     headerTitle: 'Post',
-                    headerStyle: {backgroundColor: '#0046a1'},
+                    headerStyle: {backgroundColor: "#0a2f6d"},
                     headerTitleStyle: {color: 'white'},
                     headerTintColor: 'white',
                     animation: "slide_from_bottom",

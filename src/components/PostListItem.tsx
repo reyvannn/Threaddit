@@ -55,10 +55,10 @@ export default function PostListItem({post, isDetailedPost}: PostListItemProps) 
                 <Text>•</Text>
                 <Text style={{color: "grey"}}>{formatDistanceToNowStrict(new Date(post.created_at))}</Text>
                 <Pressable
-                    style={{marginLeft: "auto"}}
+                    style={[styles.roundedIcon, styles.postIcon]}
                     onPress={() => console.log("Join group pressed")}
                 >
-                    <Text style={styles.joinButtonText}>Join</Text>
+                    <Text style={{fontWeight:"bold", color:"white"}}>Join</Text>
                 </Pressable>
             </View>
 
@@ -178,14 +178,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 'auto',
         backgroundColor: 'white',
     },
-    joinButtonText: {
-        backgroundColor: "#0d469b",
-        color: "white",
-        paddingVertical: 2,
-        paddingHorizontal: 7,
-        borderRadius: 10,
-        fontWeight: "bold",
-    },
     imageRoundSmall: {
         width: 24, height: 24, borderRadius: 12,
     },
@@ -195,7 +187,7 @@ const styles = StyleSheet.create({
     imageHalfRoundLarge: {
         width: "100%", aspectRatio: 4 / 3, borderRadius: 15
     },
-    titleText:{
+    titleText: {
         fontWeight: "500", fontSize: 18, letterSpacing: 0.5,
     },
     roundedIcon: {
@@ -213,9 +205,12 @@ const styles = StyleSheet.create({
         borderColor: "#dbe4e8",
     },
     voteButton: {
-        padding:5,
+        padding: 5,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius:15
+        borderRadius: 15
     },
-})
+    postIcon: {
+        paddingHorizontal:12, marginLeft:"auto", backgroundColor:"#0a2f6d"
+    }
+});
