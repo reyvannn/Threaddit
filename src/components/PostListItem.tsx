@@ -1,13 +1,14 @@
 import {View, Text, Image, StyleSheet, Pressable} from "react-native";
 import {formatDistanceToNowStrict} from "date-fns";
 import {Feather, MaterialCommunityIcons} from "@expo/vector-icons";
-import {Post} from "../types";
+import {Post} from "@/src/types";
 
 type PostListItemProps = {
     post: Post
 }
 
 export default function PostListItem({post}: PostListItemProps) {
+    console.log("PostListItem render:", post.id);
     return (
         <Pressable
             style={({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => [

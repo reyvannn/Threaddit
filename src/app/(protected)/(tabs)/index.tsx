@@ -7,8 +7,8 @@ Text is used to render a text component, which is used to display text on the sc
  */
 
 import {View, Text, Image, StyleSheet, FlatList} from "react-native";
-import posts from '../../../assets/data/posts.json'
-import PostListItem from "../../components/PostListItem";
+import posts from "@/assets/data/posts.json"
+import PostListItem from "@/src/components/PostListItem";
 
 const separator = () =>
     <View style={{

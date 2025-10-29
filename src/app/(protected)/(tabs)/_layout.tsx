@@ -1,4 +1,5 @@
-/*
+// /(protected)/(tabs)/_layout.tsx
+/**
 This file is used to define the layout of the tabs at the bottom of the screen.
 
 Tabs are used to navigate between different screens.
@@ -14,12 +15,23 @@ tabBarIcon is the icon of the tab (shown in the tab bar); import the icon from t
 
 import { Tabs } from "expo-router";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import {View} from "react-native";
+import {useAuth} from "@clerk/clerk-expo";
 
 export default function TabLayout() {
+    const {signOut} = useAuth()
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: 'black'
+                tabBarActiveTintColor: 'black',
+                headerRight: () =>
+                    <Ionicons
+                        name="log-out"
+                        size={22}
+                        color={"black"}
+                        style={[{"paddingRight":10},]}
+                        onPress={() => signOut()}
+                    />
             }}
         >
             <Tabs.Screen
