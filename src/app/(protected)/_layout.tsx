@@ -1,12 +1,14 @@
 // /(protected)/_layout.tsx
 import {useAuth} from "@clerk/clerk-expo";
-import {Redirect, Stack} from "expo-router";
+import {Redirect, Stack, useRouter} from "expo-router";
 import {useEffect, useState} from "react";
 import {ActivityIndicator, View, StyleSheet} from "react-native";
+import {AntDesign} from "@expo/vector-icons";
 
 export default function AppLayout() {
     const {isSignedIn, isLoaded} = useAuth();
-    const [waitedTooLong, setWaitedTooLong] = useState(false)
+    const [waitedTooLong, setWaitedTooLong] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -19,6 +21,7 @@ export default function AppLayout() {
     }, [] // Empty dependency array means this effect runs once on mount
     );
 
+    // wait and put a loading indicator if the app is still loading
     if (!isLoaded && !waitedTooLong) {
         return (
             <View style={styles.loadingContainer}>
@@ -34,8 +37,20 @@ export default function AppLayout() {
     return (
         <Stack>
             <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+            <Stack.Screen
+                name="post/[id]"
+                options={{
+                    headerTitle: 'Post',
+                    headerStyle: {backgroundColor: '#0046a1'},
+                    headerTitleStyle: {color: 'white'},
+                    headerTintColor: 'white',
+                    animation: "slide_from_bottom",
+                    headerBackButtonDisplayMode: "minimal",
+                    headerLeft: () =>
+                        <AntDesign name="close" size={20} style={{margin:15}} color={"white"} onPress={() => router.back()}></AntDesign>
+                }}/>
         </Stack>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
