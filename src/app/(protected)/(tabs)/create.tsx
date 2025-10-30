@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {AntDesign} from "@expo/vector-icons";
-import {useNavigation, useRouter} from "expo-router";
+import {Link, useNavigation, useRouter} from "expo-router";
 import React from "react";
 
 export default function CreateScreen() {
@@ -119,15 +119,17 @@ export default function CreateScreen() {
                     style={{paddingVertical: 10}}
                     keyboardShouldPersistTaps="always"
                 >
-                    <Pressable style={[styles.roundedIcon, {alignSelf: "flex-start"}]}>
-                        <View style={{padding: 10, flexDirection: "row", alignItems: "center", gap: 10}}>
-                            <Image source={require("assets/r_placeholder2.png")} style={styles.imageRoundSmall}/>
-                            <View style={{flexDirection: "row"}}>
-                                <Text style={{fontWeight: 600, fontSize: 16}}>r/</Text>
-                                <Text style={{fontWeight: 600, fontSize: 16}}>Select a community</Text>
+                    <Link href={"group-selector"}>
+                        <View style={[styles.roundedIcon, {alignSelf: "flex-start"}]}>
+                            <View style={{padding: 10, flexDirection: "row", alignItems: "center", gap: 10}}>
+                                <Image source={require("assets/r_placeholder2.png")} style={styles.imageRoundSmall}/>
+                                <View style={{flexDirection: "row"}}>
+                                    <Text style={{fontWeight: 600, fontSize: 16}}>r/</Text>
+                                    <Text style={{fontWeight: 600, fontSize: 16}}>Select a community</Text>
+                                </View>
                             </View>
                         </View>
-                    </Pressable>
+                    </Link>
                     {/*  TITLE  */}
                     {(Platform.OS === "web" || Platform.OS === "windows") ?
                         <View>

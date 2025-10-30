@@ -49,6 +49,7 @@ export default function AppLayout() {
                     headerLeft: () =>
                         <AntDesign name="close" size={20} style={{margin:15}} color={"white"} onPress={() => router.back()}></AntDesign>
                 }}/>
+            <Stack.Screen name="group-selector" options={{headerShown:false}}/>
         </Stack>
     );
 };
