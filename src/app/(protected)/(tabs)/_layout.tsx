@@ -27,7 +27,7 @@ export default function TabLayout() {
                 headerRight: () =>
                     <Ionicons
                         name="log-out"
-                        size={22}
+                        size={28}
                         color={"black"}
                         style={[{"paddingRight":10},]}
                         onPress={() => signOut()}

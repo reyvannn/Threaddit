@@ -1,3 +1,5 @@
+// /app/(protected)/group-selector.tsx
+
 import {
     View,
     Text,
@@ -14,9 +16,11 @@ import {AntDesign, EvilIcons, Ionicons} from "@expo/vector-icons";
 import {router} from "expo-router";
 import React, {useMemo} from "react";
 import groups from "@/assets/data/groups.json";
+import {useGroupStore} from "@/src/stores/group-store";
 
 export default function GroupSelector() {
     const [searchValue, setSearchValue] = React.useState<string>("");
+    const setSelectedGroup = useGroupStore((state) => state.setGroup)
 
     const filteredGroups = useMemo(() => {
         const search = searchValue.toLowerCase();
@@ -80,7 +84,13 @@ export default function GroupSelector() {
                 data={filteredGroups}
                 ItemSeparatorComponent={separator}
                 renderItem={({item}) => (
-                    <Pressable style={{paddingVertical:5}}>
+                    <Pressable
+                        style={{paddingVertical:5}}
+                        onPress={() => {
+                            setSelectedGroup(item)
+                            router.back()
+                        }}
+                    >
                         <View style={{flexDirection: "row", gap: 10, marginHorizontal: 5, paddingHorizontal: 10}}>
                             <Image source={{uri: item.image}} style={styles.imageRoundMedium}/>
                             <View>
