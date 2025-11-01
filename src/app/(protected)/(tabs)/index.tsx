@@ -12,7 +12,7 @@ import PostListItem from "@/src/components/PostListItem";
 
 const separator = () =>
     <View style={{
-        height: StyleSheet.hairlineWidth*2,
+        height: StyleSheet.hairlineWidth*5,
         backgroundColor: "#f1f1f1",
     }}/>
 

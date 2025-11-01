@@ -100,7 +100,13 @@ export default function PostListItem({post, isDetailedPost}: PostListItemProps) 
                             </View>
                         )}
                     </Pressable>
-                    <Text style={{cursor: "auto"}}>{post.upvotes}</Text>
+                    <Pressable
+                        onPress={(e) => {
+                            e?.stopPropagation()
+                        }}
+                    >
+                        <Text style={{cursor: "auto"}}>{post.upvotes}</Text>
+                    </Pressable>
                     <Pressable style={{borderRadius: 15}} onPress={() => console.log("Downvote pressed")}>
                         {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (
                             <View
