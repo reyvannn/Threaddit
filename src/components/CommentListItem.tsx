@@ -1,6 +1,6 @@
 // /components/CommentListItem.tsx
 
-import {Comment} from "@/src/types";
+import {Comment} from "@/src/types/types";
 import {View, Text, Image, StyleSheet, Pressable, TextInput, Platform} from "react-native";
 import {formatDistanceToNowStrict} from "date-fns";
 import {Feather, MaterialCommunityIcons, Octicons} from "@expo/vector-icons";

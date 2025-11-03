@@ -7,8 +7,10 @@ Text is used to render a text component, which is used to display text on the sc
  */
 
 import {View, Text, Image, StyleSheet, FlatList} from "react-native";
-import posts from "@/assets/data/posts.json"
 import PostListItem from "@/src/components/PostListItem";
+import React from "react";
+import {supabase} from "@/src/lib/supabase";
+import {Tables} from "@/src/types/database.types";
 
 const separator = () =>
     <View style={{
@@ -16,7 +18,27 @@ const separator = () =>
         backgroundColor: "#f1f1f1",
     }}/>
 
+export type Post = Tables<"posts"> & {
+    group: Tables<"groups">,
+    user: Tables<"users">,
+}
+
 export default function HomeScreen() {
+    const [posts, setPosts] = React.useState<Post[]>([]);
+
+    React.useEffect(() => {
+        fetchPosts();
+    }, []);
+
+    const fetchPosts = async () => {
+        const {data, error} = await supabase.from('posts').select('*, group:groups(*), user:users!posts_user_id_fkey(*)').order('created_at', {ascending: false});
+        if (error) {
+            console.log(error);
+            throw error;
+        }
+        setPosts(data);
+    }
+
     return (
         <View style={{flex: 1}}>
             <FlatList

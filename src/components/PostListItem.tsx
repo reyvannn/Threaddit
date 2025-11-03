@@ -3,13 +3,17 @@
 import {View, Text, Image, StyleSheet, Pressable, useWindowDimensions, PixelRatio} from "react-native";
 import {formatDistanceToNowStrict} from "date-fns";
 import {Feather, MaterialCommunityIcons} from "@expo/vector-icons";
-import {Post} from "@/src/types";
+// import {Post} from "@/src/types/types";
+import {Post} from "@/src/app/(protected)/(tabs)";
 import {useRouter} from "expo-router";
 
 type PostListItemProps = {
-    post: Post;
+    post: Post & {
+        nr_of_comments?: number, // fetching not implemented yet
+        upvotes?: number, // fetching not implemented yet
+    }
     isDetailedPost?: boolean;
-}
+};
 
 export default function PostListItem({post, isDetailedPost}: PostListItemProps) {
     console.log("PostListItem render:", post.id);
@@ -32,7 +36,7 @@ export default function PostListItem({post, isDetailedPost}: PostListItemProps) 
                     style={{flexDirection: "row", gap: 10, alignItems: "center"}}
                     onPress={() => console.log("Group pressed")}
                 >
-                    <Image source={{uri: post.group.image}} style={imageStyle}/>
+                    <Image source={{uri: post.group.image ?? undefined}} style={imageStyle}/>
                     <View style={{justifyContent: "center"}}>
                         <Text style={{fontWeight: "bold", fontSize: isDetailedPost ? fontSizeDetailedPost : fontSize}}>
                             {post.group.name}
@@ -40,20 +44,22 @@ export default function PostListItem({post, isDetailedPost}: PostListItemProps) 
                         {
                             // If isDetailedPost is true, render the username
                             isDetailedPost &&
-                            <Pressable
-                                onPress={() => {
-                                    console.log(`User ${post.user.name} is pressed`)
-                                }}
-                            >
-                                <Text style={{fontSize: isDetailedPost ? fontSizeDetailedPost : fontSize}}>
-                                    {post.user.name}
-                                </Text>
-                            </Pressable>
+                            <View>
+                                <Text>•</Text>
+                                <Pressable
+                                    onPress={() => {
+                                        console.log(`User ${post.user.name} is pressed`)
+                                    }}
+                                >
+                                    <Text style={{fontSize: isDetailedPost ? fontSizeDetailedPost : fontSize}}>
+                                        {post.user.name}
+                                    </Text>
+                                </Pressable>
+                            </View>
                         }
                     </View>
                 </Pressable>
-                <Text>•</Text>
-                <Text style={{color: "grey"}}>{formatDistanceToNowStrict(new Date(post.created_at))}</Text>
+                <Text style={{color: "grey"}}>{post.created_at ? formatDistanceToNowStrict(new Date(post.created_at)) : "—"}</Text>
                 <Pressable
                     style={[styles.roundedIcon, styles.postIcon]}
                     onPress={() => console.log("Join group pressed")}
