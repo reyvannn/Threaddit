@@ -64,6 +64,7 @@ export default function DetailedPost() {
     const header = useMemo(
         () => (
             <View style={styles.centeredContainer}>
+                {/*@ts-ignore*/}
                 <PostListItem post={detailedPost!} isDetailedPost />
                 <View style={{ height: 8, backgroundColor: "#f1f1f1" }} />
             </View>
