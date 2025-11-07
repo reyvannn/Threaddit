@@ -1,18 +1,25 @@
 // /(protected)/post/[id].tsx
 
-import {Text, StyleSheet, FlatList, View, TextInput, Platform, Pressable} from "react-native";
+import {Text, StyleSheet, FlatList, View, TextInput, Platform} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useLocalSearchParams} from "expo-router";
-import PostListItem from "@/src/components/PostListItem";
-import posts from "@/assets/data/posts.json";
+import PostListItem from "@/src/features/posts/PostListItem";
 import comments from "@/assets/data/comments.json"
 import CommentListItem from "@/src/components/CommentListItem";
 import React, {useCallback, useMemo} from "react";
-import {IconButton} from "@/src/components/IconButton";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
+import {useQuery} from "@tanstack/react-query";
+import {fetchPostById} from "@/src/features/posts/api";
 
-export default function DetailedPost() {
-    const {id} = useLocalSearchParams();
+export default function post() {
+    const {id} = useLocalSearchParams<{ id: string }>();
+
+    const {data:post, isLoading, error} = useQuery({
+        queryKey: ["posts", id],
+        queryFn: () => fetchPostById(id),
+        staleTime: 10000
+    })
+
     const [commentText, setCommentText] = React.useState<string>("");
     const [commentHeight, setCommentHeight] = React.useState(40);
     const MAX = 140;
@@ -22,10 +29,6 @@ export default function DetailedPost() {
 
     const listRef = React.useRef<FlatList>(null);
 
-    const detailedPost = useMemo(
-        () => posts.find(post => post.id === id),
-        [id]
-    )
     const postComments = useMemo(
         () => comments.filter(comment => comment.post_id === id),
         [id]
@@ -64,18 +67,21 @@ export default function DetailedPost() {
     const header = useMemo(
         () => (
             <View style={styles.centeredContainer}>
-                {/*@ts-ignore*/}
-                <PostListItem post={detailedPost!} isDetailedPost />
+                <PostListItem post={post!} isDetailedPost />
                 <View style={{ height: 8, backgroundColor: "#f1f1f1" }} />
             </View>
         ),
-        [detailedPost]
+        [post]
     );
 
-    if (!detailedPost) {
-        return <Text>Post not found</Text>;
+    if (error || !post) {
+        console.error(error)
+        return (
+            <View style={styles.loadingContainer}>
+                <Text>Error loading the post</Text>
+            </View>
+        )
     }
-
 
     return (
         <SafeAreaView style={{flex: 1}} edges={["bottom"]}>
@@ -179,4 +185,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         overflow: "hidden",
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    }
 })

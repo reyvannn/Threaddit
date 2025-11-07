@@ -1,3 +1,5 @@
+/** @deprecated Use types derived from src/types/database.types.ts (supabase types) instead. */
+
 export type Post = {
     id: string;
     title: string;

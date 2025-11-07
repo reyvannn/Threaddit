@@ -1,7 +1,7 @@
 // /stores/group-store.ts
 
 import {create} from 'zustand';
-import {Group} from "@/src/types/types";
+import {Group} from "@/src/features/groups/types";
 
 type GroupStore = {
     group: Group|null;

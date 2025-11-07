@@ -9,29 +9,68 @@ import {
     Pressable,
     TextInput,
     StyleSheet,
-    Image
+    Image, ActivityIndicator
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {AntDesign, EvilIcons, Ionicons} from "@expo/vector-icons";
 import {router} from "expo-router";
 import React, {useMemo} from "react";
-import groups from "@/assets/data/groups.json";
 import {useGroupStore} from "@/src/stores/group-store";
+import {useQuery} from "@tanstack/react-query";
+import {fetchGroups} from "@/src/features/groups/api";
+import {Group} from "@/src/features/groups/types";
 
 export default function GroupSelector() {
     const [searchValue, setSearchValue] = React.useState<string>("");
-    const setSelectedGroup = useGroupStore((state) => state.setGroup)
+    const setSelectedGroup = useGroupStore((state) => state.setGroup);
 
-    const filteredGroups = useMemo(() => {
-        const search = searchValue.toLowerCase();
-        return groups.filter((group) => group.name.toLowerCase().includes(search));
-    }, [searchValue])
+    function useDebouncedValue(value: string, delay: number) {
+        const [debouncedValue, setDebouncedValue] = React.useState(value);
+        React.useEffect(
+            () => {
+                const timeout = setTimeout(() => {
+                    setDebouncedValue(value)
+                });
+                return () => clearTimeout(timeout);
+            },
+            [value, delay]);
+        return debouncedValue;
+    }
+
+    const debouncedSearchValue = useDebouncedValue(searchValue.trim(), 1000);
 
     const separator = () =>
         <View style={{
             height: StyleSheet.hairlineWidth*2,
             backgroundColor: "#f1f1f1",
         }}/>
+
+    const {data, isLoading, error} = useQuery<Group[]>({
+        queryKey: ['groups', debouncedSearchValue],
+        queryFn: () => fetchGroups(debouncedSearchValue),
+        placeholderData: (previousData) => previousData,
+        staleTime: 10000,
+        gcTime: 300000
+    });
+
+    const filteredGroups = data
+
+    if (isLoading) {
+        return (
+            <View style={styles.loadingContainer}>
+                 <ActivityIndicator size={"large"}/>
+            </View>
+        )
+    }
+
+    if (error || !data) {
+        console.error(error)
+        return (
+            <View style={styles.loadingContainer}>
+                <Text>Error loading groups</Text>
+            </View>
+        )
+    }
 
     return (
         <SafeAreaView style={{flexDirection: "column", flex: 1, backgroundColor: "white"}}>
@@ -92,7 +131,7 @@ export default function GroupSelector() {
                         }}
                     >
                         <View style={{flexDirection: "row", gap: 10, marginHorizontal: 5, paddingHorizontal: 10}}>
-                            <Image source={{uri: item.image}} style={styles.imageRoundMedium}/>
+                            {item.image && <Image source={{uri: item.image}} style={styles.imageRoundMedium}/>}
                             <View>
                                 <Text style={{fontWeight:"600"}}>{item.name}</Text>
                                 <View>
@@ -126,4 +165,9 @@ const styles = StyleSheet.create({
     imageRoundMedium: {
         width: 36, height: 36, borderRadius: 18,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    }
 })
