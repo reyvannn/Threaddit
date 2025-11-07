@@ -20,7 +20,7 @@ const separator = () =>
     }}/>
 
 export default function HomeScreen() {
-    const {data:posts, isLoading, error} = useQuery({
+    const {data:posts, isLoading, error, refetch, isRefetching} = useQuery({
         queryKey: ['posts'],
         queryFn: () =>  fetchPosts()
     });
@@ -39,6 +39,8 @@ export default function HomeScreen() {
                 ItemSeparatorComponent={separator}
                 data={posts}
                 renderItem={({item}) => <PostListItem post={item}/>}
+                onRefresh={refetch}
+                refreshing={isRefetching}
             />
         </View>
     );

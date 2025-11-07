@@ -10,13 +10,16 @@ import {
     TextInput,
     PixelRatio,
     Platform,
-    KeyboardAvoidingView, ScrollView, Modal, BackHandler, TouchableWithoutFeedback
+    KeyboardAvoidingView, ScrollView, Modal, BackHandler, TouchableWithoutFeedback, Alert
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {AntDesign} from "@expo/vector-icons";
 import {Link, useNavigation, useRouter} from "expo-router";
 import React from "react";
 import {useGroupStore} from "@/src/stores/group-store";
+import {RoundedPressable} from "@/src/components/RoundedPressable";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {insertPost} from "@/src/features/posts/api";
 
 export default function CreateScreen() {
     const navigation = useNavigation()
@@ -26,7 +29,9 @@ export default function CreateScreen() {
     const [description, setDescription] = React.useState("");
     const [descriptionHeight, setDescriptionHeight] = React.useState(0);
     const selectedGroup = useGroupStore((state) => state.group)
-    const setSelectedGroup = useGroupStore((state) => state.setGroup)
+    const setSelectedGroup = useGroupStore((state) => state.setGroup);
+
+    const queryClient = useQueryClient();
 
     // Modal variables
     const [showModal, setShowModal] = React.useState(false);
@@ -97,6 +102,43 @@ export default function CreateScreen() {
         return () => subscription.remove();
     },[isDirty, router]);
 
+    // END FLOW INTERCEPTION
+
+    const {mutate, isPending} = useMutation({
+        mutationFn: async () => {
+            if (!selectedGroup) {throw new Error("Please select a community")}
+            if (!title || title.trim().length === 0) {
+                throw new Error("Please enter a title")
+            }
+            if (title.length > 300) {
+                throw new Error("Title is too long")
+            }
+            if (description.length > 10000) {
+                throw new Error("Description is too long")
+            }
+            if (description.length > 0 && !description.includes("\n")) {}
+            return insertPost({
+                title: title,
+                description: description,
+                group_id: selectedGroup.id,
+                user_id: "37c5770a-2b64-467f-85df-ee730eeef5a1",
+            })
+        },
+        onSuccess: (data) => {
+            setDescription("")
+            setTitle("")
+            console.log(data)
+            queryClient.invalidateQueries({
+                queryKey: ['posts'],
+            })
+            router.back()
+        },
+        onError: (error) => {
+            // console.error(error)
+            Alert.alert("Failed to post", error.message)
+        }
+    })
+
     const groupName = selectedGroup?.name.trim() ?? "";
     const displayGroupName = groupName
         ? (groupName.startsWith("r/") ? groupName : `r/${groupName}`)
@@ -116,9 +158,17 @@ export default function CreateScreen() {
                         color={"black"}
                     />
                 </Pressable>
-                <Pressable style={[styles.roundedIcon, styles.postIcon]}>
-                    <Text style={{color: "white", fontWeight: "bold"}}>Post</Text>
-                </Pressable>
+                <View style={{marginLeft:"auto"}}>
+                    <RoundedPressable
+                        label={isPending ? "Posting..." : "Post"}
+                        colors={{
+                            bg: {default: "#007bff", hovered: "#0a2f6d", pressed:"#0e4498"},
+                            text: {default:"white", hovered:"white", pressed:"white"}
+                        }}
+                        disabled={isPending}
+                        onPress={mutate}
+                    />
+                </View>
             </View>
             {/*  COMMUNITY SELECTOR  */}
             <KeyboardAvoidingView
@@ -183,11 +233,11 @@ export default function CreateScreen() {
                             />
                         }
                         {/* TAGS AND FLAIR SELECTOR */}
-                        <Pressable style={[styles.roundedIcon, {alignSelf: "flex-start"}]}>
-                            <View style={{padding: 10, flexDirection: "row", alignItems: "center", gap: 10}}>
-                                <Text style={{fontWeight: 600}}>Add tags & flair (optional)</Text>
-                            </View>
-                        </Pressable>
+                        {/*<Pressable style={[styles.roundedIcon, {alignSelf: "flex-start"}]}>*/}
+                        {/*    <View style={{padding: 10, flexDirection: "row", alignItems: "center", gap: 10}}>*/}
+                        {/*        <Text style={{fontWeight: 600}}>Add tags & flair (optional)</Text>*/}
+                        {/*    </View>*/}
+                        {/*</Pressable>*/}
                         {/*  BODY TEXT  */}
                         {(Platform.OS === "web" || Platform.OS === "windows") ?
                             <View>

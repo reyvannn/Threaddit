@@ -1,6 +1,6 @@
 // /(protected)/post/[id].tsx
 
-import {Text, StyleSheet, FlatList, View, TextInput, Platform} from "react-native";
+import {Text, StyleSheet, FlatList, View, TextInput, Platform, ActivityIndicator} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useLocalSearchParams} from "expo-router";
 import PostListItem from "@/src/features/posts/PostListItem";
@@ -74,7 +74,15 @@ export default function post() {
         [post]
     );
 
-    if (error || !post) {
+    if (!post) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size={"large"}/>
+            </View>
+        )
+    }
+
+    if (error) {
         console.error(error)
         return (
             <View style={styles.loadingContainer}>

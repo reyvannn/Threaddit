@@ -2,6 +2,8 @@ import {Image, Pressable, Text, View} from "react-native";
 import {formatDistanceToNowStrict} from "date-fns";
 import {postStyles as styles} from "@/src/features/posts/styles";
 import {Post} from "@/src/features/posts/types";
+import {RoundedPressable} from "@/src/components/RoundedPressable";
+import React from "react";
 
 type Props = {
     post: Post,
@@ -40,12 +42,16 @@ export default function PostHeader({post, isDetailedPost, imageStyle, fontSize}:
                 </View>
             </Pressable>
             <Text style={{color: "grey"}}>{post.created_at ? formatDistanceToNowStrict(new Date(post.created_at)) : "—"}</Text>
-            <Pressable
-                style={[styles.roundedIcon, styles.postIcon]}
-                onPress={() => console.log("Join group pressed")}
-            >
-                <Text style={{fontWeight:"bold", color:"white"}}>Join</Text>
-            </Pressable>
+            <View style={{marginLeft:"auto"}}>
+                <RoundedPressable
+                    label={"Join"}
+                    colors={{
+                        bg: {default: "#007bff", hovered: "#0a2f6d", pressed:"#0e4498"},
+                        text: {default:"white", hovered:"white", pressed:"white"}
+                    }}
+                    onPress={() => console.log("Join group pressed")}
+                />
+            </View>
         </View>
     )
 }
