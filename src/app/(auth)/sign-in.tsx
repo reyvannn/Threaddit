@@ -72,7 +72,7 @@ export default function Page() {
             />
             <View style={styles.signUpContainer}>
                 <Text style={styles.text}>Don't have an account?</Text>
-                <Link href="/signUp" asChild>
+                <Link href="/sign-up" asChild>
                     <TouchableOpacity>
                         <Text style={styles.signUpText}> Sign up</Text>
                     </TouchableOpacity>

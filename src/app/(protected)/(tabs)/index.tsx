@@ -22,7 +22,8 @@ const separator = () =>
 export default function HomeScreen() {
     const {data:posts, isLoading, error, refetch, isRefetching} = useQuery({
         queryKey: ['posts'],
-        queryFn: () =>  fetchPosts()
+        queryFn: () => fetchPosts(),
+        staleTime: 10000
     });
 
     if (isLoading) {

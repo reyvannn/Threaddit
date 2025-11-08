@@ -20,8 +20,10 @@ import {useGroupStore} from "@/src/stores/group-store";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {insertPost} from "@/src/features/posts/api";
+import {useUser} from "@clerk/clerk-expo";
 
 export default function CreateScreen() {
+    const {user} = useUser()
     const navigation = useNavigation()
     const router = useRouter();
     const [title, setTitle] = React.useState("");
@@ -106,7 +108,9 @@ export default function CreateScreen() {
 
     const {mutate, isPending} = useMutation({
         mutationFn: async () => {
-            if (!selectedGroup) {throw new Error("Please select a community")}
+            if (!selectedGroup) {
+                throw new Error("Please select a community");
+            }
             if (!title || title.trim().length === 0) {
                 throw new Error("Please enter a title")
             }
@@ -121,7 +125,7 @@ export default function CreateScreen() {
                 title: title,
                 description: description,
                 group_id: selectedGroup.id,
-                user_id: "37c5770a-2b64-467f-85df-ee730eeef5a1",
+                user_id: user!.id,
             })
         },
         onSuccess: (data) => {
@@ -134,7 +138,7 @@ export default function CreateScreen() {
             router.back()
         },
         onError: (error) => {
-            // console.error(error)
+            console.error(error)
             Alert.alert("Failed to post", error.message)
         }
     })

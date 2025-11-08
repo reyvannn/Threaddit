@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 
 export default function RootLayoutNav() {
 
-    useReactQueryDevTools(queryClient)
+    // useReactQueryDevTools(queryClient)
 
     return (
         <ClerkProvider tokenCache={tokenCache}>
