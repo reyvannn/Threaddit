@@ -6,7 +6,6 @@ import {Post} from "@/src/features/posts/types";
 type Props = {
     post: Post & {
         nr_of_comments?: number, // fetching not implemented yet
-        upvotes?: number, // fetching not implemented yet
     },
 }
 
@@ -36,7 +35,7 @@ export default function PostFooter({post} : Props) {
                         e?.stopPropagation()
                     }}
                 >
-                    <Text style={{cursor: "auto"}}>{post.upvotes}</Text>
+                    <Text style={{cursor: "auto"}}>{post.upvotes[0].sum || 0}</Text>
                 </Pressable>
                 <Pressable style={{borderRadius: 15}} onPress={() => console.log("Downvote pressed")}>
                     {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (

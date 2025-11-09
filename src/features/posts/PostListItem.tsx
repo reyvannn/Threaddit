@@ -7,17 +7,24 @@ import PostHeader from "@/src/features/posts/components/PostHeader";
 import PostFooter from "@/src/features/posts/components/PostFooter";
 import {Post} from "@/src/features/posts/types";
 import {useCallback, useRef} from "react";
+import {useQuery} from "@tanstack/react-query";
+import {fetchPostUpvotes} from "@/src/features/upvotes/api";
 
 type PostListItemProps = {
     post: Post & {
         nr_of_comments?: number, // fetching not implemented yet
-        upvotes?: number, // fetching not implemented yet
     }
     isDetailedPost?: boolean;
 };
 
 export default function PostListItem({post, isDetailedPost}: PostListItemProps) {
-    console.log("PostListItem render:", post.id);
+    // console.log("PostListItem render:", post.id);
+
+    // const {data:upvotes, error} = useQuery({
+    //     queryKey: ["post", post.id, "upvotes"],
+    //     queryFn: () => fetchPostUpvotes(post.id),
+    //     // staleTime: 10000
+    // })
 
     const {width} = useWindowDimensions();
     const initialFontSize = 14 * PixelRatio.getFontScale();
