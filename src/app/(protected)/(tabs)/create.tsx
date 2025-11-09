@@ -131,6 +131,7 @@ export default function CreateScreen() {
         onSuccess: (data) => {
             setDescription("")
             setTitle("")
+            setSelectedGroup(null)
             console.log(data)
             queryClient.invalidateQueries({
                 queryKey: ['posts'],

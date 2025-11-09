@@ -1,3 +1,4 @@
+// /(protected)/(tabs)/index.tsx
 /*
 This file is used to define the home screen of the app.
 It will be displayed when the user navigates to the home screen.
