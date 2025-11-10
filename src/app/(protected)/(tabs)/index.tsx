@@ -13,6 +13,7 @@ import React from "react";
 import {Tables} from "@/src/types/database.types";
 import {useQuery} from "@tanstack/react-query";
 import {fetchPosts} from "@/src/features/posts/api";
+import {useAuth} from "@clerk/clerk-expo";
 
 const separator = () =>
     <View style={{
@@ -21,9 +22,10 @@ const separator = () =>
     }}/>
 
 export default function HomeScreen() {
-    const {data:posts, isLoading, error, refetch, isRefetching} = useQuery({
+    const {userId} = useAuth();
+    const {data: posts, isLoading, error, refetch, isRefetching} = useQuery({
         queryKey: ['posts'],
-        queryFn: () => fetchPosts(),
+        queryFn: () => fetchPosts(userId ?? ""),
         staleTime: 10000
     });
 

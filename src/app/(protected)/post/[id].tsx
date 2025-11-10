@@ -22,7 +22,7 @@ export default function post() {
     const {userId} = useAuth()
     const {data:post, isLoading, error} = useQuery({
         queryKey: ["posts", id],
-        queryFn: () => fetchPostById(id),
+        queryFn: () => fetchPostById(id, userId ?? ""),
         staleTime: 10000
     })
     const isOwner = userId === post?.user_id

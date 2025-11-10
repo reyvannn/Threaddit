@@ -2,6 +2,9 @@ import {Pressable, Text, View} from "react-native";
 import {postStyles as styles} from "@/src/features/posts/styles";
 import {Feather, MaterialCommunityIcons} from "@expo/vector-icons";
 import {Post} from "@/src/features/posts/types";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {upsertUpvote} from "@/src/features/upvotes/api";
+import {useAuth} from "@clerk/clerk-expo";
 
 type Props = {
     post: Post & {
@@ -9,12 +12,35 @@ type Props = {
     },
 }
 
-export default function PostFooter({post} : Props) {
+export default function PostFooter({post}: Props) {
+    const {userId} = useAuth();
+    const queryClient = useQueryClient();
+    const {mutate,} = useMutation({
+        mutationFn: async (value: 1 | -1 | 0) => {
+            if (!post) {
+                throw new Error("Post not found");
+            }
+            return upsertUpvote(post.id, value, userId!)
+        },
+        onError: (error) => {
+            console.log(error);
+            throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ["post", post.id]});
+            queryClient.invalidateQueries({queryKey: ["posts"]});
+        }
+    })
+
+    const userUpvoteValue = post.user_vote?.[0]?.value ?? 0;
+    const upvoteMutateValue = userUpvoteValue <= 0 ? 1 : 0;
+    const downvoteMutateValue = userUpvoteValue >= 0 ? -1 : 0;
+
     return (
         <View style={{flexDirection: "row", gap: 12}}>
             {/* Combine the upvote and downvote icons under a single item with rounded corners */}
             <View style={[styles.roundedIcon, {overflow: "visible"}]}>
-                <Pressable style={{borderRadius: 15}} onPress={() => console.log("Upvote pressed")}>
+                <Pressable style={{borderRadius: 15}} onPress={() => mutate(upvoteMutateValue)}>
                     {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (
                         <View
                             style={[
@@ -25,7 +51,10 @@ export default function PostFooter({post} : Props) {
                             <MaterialCommunityIcons
                                 name="arrow-up-bold-outline"
                                 size={19}
-                                color={hovered ? "red" : "black"}
+                                color={
+                                    userUpvoteValue > 0 ? "red" :
+                                        hovered ? "red" : "black"
+                                }
                             />
                         </View>
                     )}
@@ -37,7 +66,7 @@ export default function PostFooter({post} : Props) {
                 >
                     <Text style={{cursor: "auto"}}>{post.upvotes[0].sum || 0}</Text>
                 </Pressable>
-                <Pressable style={{borderRadius: 15}} onPress={() => console.log("Downvote pressed")}>
+                <Pressable style={{borderRadius: 15}} onPress={() => mutate(downvoteMutateValue)}>
                     {({pressed, hovered}: { pressed: boolean, hovered?: boolean }) => (
                         <View
                             style={[
@@ -48,7 +77,10 @@ export default function PostFooter({post} : Props) {
                             <MaterialCommunityIcons
                                 name="arrow-down-bold-outline"
                                 size={19}
-                                color={hovered ? "#6a5ccc" : "black"}
+                                color={
+                                    userUpvoteValue < 0 ? "#6a5ccc" :
+                                        hovered ? "#6a5ccc" : "black"
+                                }
                             />
                         </View>
                     )}
@@ -88,4 +120,4 @@ export default function PostFooter({post} : Props) {
             </Pressable>
         </View>
     )
-}
+};

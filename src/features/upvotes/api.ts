@@ -1,17 +1,13 @@
 import {supabase} from "@/src/lib/supabase";
 
-export const fetchPostUpvotes = async (postId: string) => {
+export const upsertUpvote = async (postId: string, value: 1 | -1 | 0, userId:string) => {
     const {data, error} = await supabase
         .from('upvotes')
-        .select("value.sum()")
-        .eq('post_id', postId)
+        .upsert({post_id: postId, value: value, user_id:userId})
+        .select()
         .single();
-    console.log(data)
     if (error) {
         throw error;
     }
-    if (data == null) {
-        return 0;
-    }
     return data;
-};
+}
