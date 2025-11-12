@@ -140,7 +140,7 @@ export default function CreateScreen() {
         },
         onError: (error) => {
             console.error(error)
-            Alert.alert("Failed to post", error.message)
+            Alert.alert("Failed to post", error.message, undefined, {cancelable: true})
         }
     })
 

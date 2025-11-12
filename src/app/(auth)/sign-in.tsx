@@ -1,124 +1,107 @@
+// /(auth)/sign-in.tsx
+
+import { styles } from '@/src/features/auth/styles'
 import { useSignIn } from '@clerk/clerk-expo'
-import { Link, useRouter } from 'expo-router'
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button, KeyboardAvoidingView, Platform } from "react-native";
-import React, {useState} from 'react'
+import { useRouter } from 'expo-router'
+import { useState } from 'react'
+import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native'
 
-
-export default function Page() {
-    const {signIn, setActive, isLoaded} = useSignIn()
+function SignInScreen() {
     const router = useRouter()
+    // [useSignIn hook](/docs/hooks/use-sign-in) from Clerk SDK to handle sign-in logic
+    const { signIn, isLoaded, setActive } = useSignIn()
+    const [credentials, setCredentials] = useState('')
+    const [password, setPassword] = useState('')
+    const [pendingVerification, setPendingVerification] = useState(false)
 
-    const [loginInput, setLoginInput] = React.useState<string>('')
-    const [password, setPassword] = React.useState<string>('')
-    const [pendingVerification, setPendingVerification] = useState(false);
+    const onSignInPress = async () => {
+        if (!isLoaded || !setActive) return
 
-    // Handle the submission of the sign-in form
-    const onSignInPress = React.useCallback(async () => {
-        if (!isLoaded || pendingVerification) return
-
-        // Start the sign-in process using the email and password provided
         setPendingVerification(true)
         try {
+            // signIn.create() method from Clerk SDK to handle sign-in logic
             const signInAttempt = await signIn.create({
-                identifier: loginInput,
+                identifier: credentials,
                 password,
             })
 
-            // If sign-in process is complete, set the created session as active
-            // and redirect the user
             if (signInAttempt.status === 'complete') {
-                await setActive({session: signInAttempt.createdSessionId})
+                await setActive({
+                    session: signInAttempt.createdSessionId,
+                })
+                // Navigate to protected screen once the session is created
                 router.replace('/')
             } else {
-                // If the status isn't complete, check why. User might need to
-                // complete further steps.
-                console.error(JSON.stringify(signInAttempt, null, 2))
+                console.log(JSON.stringify(signInAttempt, null, 2));
+                Alert.alert("Error", "Sign in failed. Please check your credentials and try again.", undefined, { cancelable: true })
             }
-        } catch (err) {
-            // See https://clerk.com/docs/custom-flows/error-handling
-            // for more info on error handling
-            console.error(JSON.stringify(err, null, 2))
+        } catch (err: any) {
+            console.log(JSON.stringify(err, null, 2));
+            Alert.alert("Error", err.message, undefined, { cancelable: true })
         } finally {
             setPendingVerification(false)
         }
-    }, [isLoaded, loginInput, password])
+    }
 
     return (
-        <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : "padding"}>
-            <Text style={styles.title}>Sign In</Text>
-            <TextInput
-                style={styles.input}
-                autoCapitalize="none"
-                value={loginInput}
-                placeholder="Enter email or username"
-                placeholderTextColor="#aaa"
-                onChangeText={setLoginInput}
-                returnKeyType="next"
-            />
-            <TextInput
-                style={styles.input}
-                value={password}
-                placeholder="Enter password"
-                placeholderTextColor="#aaa"
-                secureTextEntry
-                onChangeText={setPassword}
-                returnKeyType="done"
-                onSubmitEditing={onSignInPress}
-            />
-            <Button
-                title={!isLoaded || pendingVerification ? "Loading..." : "Sign in"}
-                onPress={onSignInPress}
-                disabled={!isLoaded || pendingVerification}
-            />
-            <View style={styles.signUpContainer}>
-                <Text style={styles.text}>Don't have an account?</Text>
-                <Link href="/sign-up" asChild>
-                    <TouchableOpacity>
-                        <Text style={styles.signUpText}> Sign up</Text>
-                    </TouchableOpacity>
-                </Link>
-            </View>
-        </KeyboardAvoidingView>
-    );
-};
+        <View>
+            <View style={styles.formContainer}>
+                <View style={styles.headerContainer}>
+                    <Text style={styles.title}>Sign In</Text>
+                    <Text style={styles.subtitle}>Enter your credentials to access your account</Text>
+                </View>
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 20,
-        backgroundColor: "#f8f9fa",
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20,
-        color: "black",
-    },
-    input: {
-        width: "100%",
-        maxWidth: "80%",
-        minWidth: 320,
-        height: 50,
-        borderWidth: 1,
-        borderColor: "lightgrey",
-        borderRadius: 10,
-        paddingHorizontal: 10,
-        marginBottom: 15,
-        backgroundColor: "white"
-    },
-    signUpContainer: {
-        flexDirection: "row",
-        marginTop: 15,
-    },
-    text: {
-        fontSize: 16,
-        color: "grey",
-    },
-    signUpText: {
-        fontSize: 16,
-        color: "#007bff",
-        fontWeight: "bold",
-    },
-});
+                <View style={styles.form}>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Email address or username</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your email address or username"
+                            value={credentials}
+                            onChangeText={(text) => setCredentials(text)}
+                            autoCapitalize="none"
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your password"
+                            value={password}
+                            onChangeText={(text) => setPassword(text)}
+                            secureTextEntry
+                        />
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={onSignInPress}
+                        activeOpacity={0.8}
+                        disabled={!isLoaded || pendingVerification}
+                    >
+                        <Text
+                            style={styles.buttonText}>{!isLoaded || pendingVerification ? "Loading..." : "Sign in"}</Text>
+                    </TouchableOpacity>
+
+                    {/* Link to sign-up screen */}
+                    <TouchableOpacity
+                        style={styles.textButton}
+                        onPress={() => router.push('/sign-up')}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.textButtonText}>Don&apos;t have an account? Sign up.</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <View style={[styles.headerContainer, {marginTop: 15, marginBottom:10}]}>
+                <Text style={styles.title}>Demo</Text>
+                <Text style={styles.subtitle}>Use the following credentials to access the demo account</Text>
+                <Text style={[styles.subtitle, {color: "black"}]}>Username: demo</Text>
+                <Text style={[styles.subtitle, {color: "black"}]}>Password: demo</Text>
+            </View>
+        </View>
+    );
+}
+
+export default SignInScreen
