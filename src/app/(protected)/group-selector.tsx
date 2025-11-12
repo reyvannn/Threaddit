@@ -24,7 +24,7 @@ export default function GroupSelector() {
     const [searchValue, setSearchValue] = React.useState<string>("");
     const setSelectedGroup = useGroupStore((state) => state.setGroup);
 
-    function useDebouncedValue(value: string, delay: number) {
+    function useDebouncedValue(value: string, delayMilliseconds: number) {
         const [debouncedValue, setDebouncedValue] = React.useState(value);
         React.useEffect(
             () => {
@@ -33,7 +33,7 @@ export default function GroupSelector() {
                 });
                 return () => clearTimeout(timeout);
             },
-            [value, delay]);
+            [value, delayMilliseconds]);
         return debouncedValue;
     }
 

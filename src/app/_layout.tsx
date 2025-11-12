@@ -11,6 +11,7 @@ import {ClerkProvider} from "@clerk/clerk-expo";
 import {tokenCache} from "@clerk/clerk-expo/token-cache";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {useReactQueryDevTools} from "@dev-plugins/react-query";
+import {dark} from "@clerk/themes"
 
 const queryClient = new QueryClient();
 const PK = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -21,10 +22,14 @@ export default function RootLayoutNav() {
     // useReactQueryDevTools(queryClient)
 
     return (
-        <ClerkProvider tokenCache={tokenCache} publishableKey={PK}>
+        <ClerkProvider
+            appearance={{theme: dark}}
+            tokenCache={tokenCache}
+            publishableKey={PK}
+        >
             <QueryClientProvider client={queryClient}>
                 <Slot/>
             </QueryClientProvider>
         </ClerkProvider>
-    )
+    );
 };

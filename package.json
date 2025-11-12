@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.17.1",
+    "@clerk/themes": "^2.4.35",
     "@clerk/types": "^4.95.1",
     "@dev-plugins/react-query": "^0.4.0",
     "@expo/vector-icons": "^15.0.3",
