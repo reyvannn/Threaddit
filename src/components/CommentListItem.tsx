@@ -29,7 +29,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
     const hasReplies = comment.replies?.length > 0;
 
     // Test if any change in the post page causes the comment to be rendered again
-    console.log(`Comment: ${comment.id} is rendered`)
+    // console.log(`Comment: ${comment.id} is rendered`)
 
     return (
         <View style={[styles.centeredContainer, { // No margin or padding right to avoid multiple gaps when recursion happens
