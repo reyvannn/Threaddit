@@ -25,7 +25,6 @@ export const fetchPostById = async (id: string, userId:string): Promise<Post> =>
     if (error || data === null) {
         throw error;
     }
-    console.log(data)
     return data;
 };
 

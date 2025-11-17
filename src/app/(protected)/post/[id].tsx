@@ -4,7 +4,6 @@ import {Text, StyleSheet, FlatList, View, TextInput, Platform, ActivityIndicator
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useLocalSearchParams, Stack, router} from "expo-router";
 import PostListItem from "@/src/features/posts/PostListItem";
-import comments from "@/assets/data/comments.json"
 import CommentListItem from "@/src/components/CommentListItem";
 import React, {useCallback, useMemo} from "react";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
@@ -12,6 +11,7 @@ import {UseMutateFunction, useMutation, useQuery, useQueryClient} from "@tanstac
 import {deletePost, fetchPostById} from "@/src/features/posts/api";
 import {AntDesign, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useAuth} from "@clerk/clerk-expo";
+import {fetchAndParseComments} from "@/src/features/comments/lib";
 
 export default function post() {
 
@@ -37,10 +37,26 @@ export default function post() {
     const [replyText, setReplyText] = React.useState<string>("");
     const [replyToId, setReplyToId] = React.useState<string | null>(null);
 
-    const postComments = useMemo(
-        () => comments.filter(comment => comment.post_id === id),
-        [id]
-    )
+    /**
+     * Fetch the comments for the post from the database.
+     */
+
+    const {data: comments, error:commentsError, isError} = useQuery({
+        queryKey: ["comments", id],
+        queryFn: () => fetchAndParseComments(id),
+        staleTime: 10000,
+    })
+
+    if (isError) {
+        console.error(commentsError)
+    }
+
+    // const postComments = useMemo(
+    //     () => comments?.filter(comment => comment.post_id === id),
+    //     [id]
+    // );
+
+    const postComments = comments ?? []
 
     /**
      * Ref for the FlatList component.

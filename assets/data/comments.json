@@ -1,7 +1,7 @@
 [
   {
     "id": "comment-1",
-    "post_id": "post-1",
+    "post_id": "951cc06c-58af-49da-af27-77b053481393",
     "user_id": "user-xyz",
     "parent_id": null,
     "comment": "Very nice explanation. Detailed, straight to the point and with valid comparisons!",
@@ -15,7 +15,7 @@
     "replies": [
       {
         "id": "comment-2",
-        "post_id": "post-1",
+        "post_id": "951cc06c-58af-49da-af27-77b053481393",
         "user_id": "user-abc",
         "parent_id": "comment-1",
         "comment": "Totally agree!",
@@ -32,7 +32,7 @@
   },
   {
     "id": "comment-3",
-    "post_id": "post-1",
+    "post_id": "951cc06c-58af-49da-af27-77b053481393",
     "user_id": "user-def",
     "parent_id": null,
     "comment": "Nicely written, keep up the good work!",
@@ -46,7 +46,7 @@
     "replies": [
       {
         "id": "comment-4",
-        "post_id": "post-1",
+        "post_id": "951cc06c-58af-49da-af27-77b053481393",
         "user_id": "user-ghi",
         "parent_id": "comment-3",
         "comment": "Yep, wanted to say exactly the same",
@@ -60,7 +60,7 @@
         "replies": [
           {
             "id": "comment-5",
-            "post_id": "post-1",
+            "post_id": "951cc06c-58af-49da-af27-77b053481393",
             "user_id": "user-jkl",
             "parent_id": "comment-4",
             "comment": "Totally!",
