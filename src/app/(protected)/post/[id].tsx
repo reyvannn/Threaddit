@@ -4,7 +4,7 @@ import {Text, StyleSheet, FlatList, View, TextInput, Platform, ActivityIndicator
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useLocalSearchParams, Stack, router} from "expo-router";
 import PostListItem from "@/src/features/posts/PostListItem";
-import CommentListItem from "@/src/components/CommentListItem";
+import CommentListItem from "@/src/features/comments/CommentListItem";
 import React, {useCallback, useMemo} from "react";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
 import {UseMutateFunction, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";

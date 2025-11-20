@@ -1,4 +1,4 @@
-// /components/CommentListItem.tsx
+// /features/comments/CommentListItem.tsx
 
 import {Comment} from "@/src/types/types";
 import {View, Text, Image, StyleSheet, Pressable, TextInput, Platform} from "react-native";
@@ -23,6 +23,17 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
     const MAX = 140;
     const [replyHeight, setReplyHeight] = React.useState(40);
     const [showReplies, setShowReplies] = React.useState(false);
+    const [text, setText] = React.useState<string>(composerValue ?? "");
+
+    // Sync the local state with the composerValue parent prop if it changes
+    React.useEffect(() => {
+        if (composerValue !== undefined) {
+            setText(composerValue);
+        } else {
+            setText("");
+        }
+    }, [composerValue]);
+
     const image = comment.user.image ?? defaultImage // DEFAULT IMAGE
 
     const isReplyTarget = replyToId === comment.id;
@@ -112,10 +123,11 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                             maxHeight: MAX,
                             height: replyHeight,
                         }}
-                        value={composerValue}
-                        onChangeText={(text) => {
-                            onChangeComposer?.(text)
-                            if (text.length == 0) {
+                        value={text}
+                        onChangeText={(newText) => {
+                            setText(newText);
+                            onChangeComposer?.(newText)
+                            if (newText.length == 0) {
                                 setReplyHeight(32)
                             }
                         }}
@@ -123,7 +135,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                             setReplyHeight(e.nativeEvent.contentSize.height)
                         }}
                     />
-                    {composerValue != null && composerValue.length > 0 && <View
+                    {text.length > 0 && <View
                         style={
                             [
                                 {flexDirection:"row", marginVertical:5, justifyContent:"flex-end", gap:15, paddingRight:10},
@@ -138,10 +150,11 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 text: {default:"black"}
                             }}
                             onPress={() => {
+                                setText("")
                                 if (onChangeComposer) {
                                     onChangeComposer("")
-                                    setReplyHeight(40)
                                 }
+                                setReplyHeight(40)
                             }}
                         />
                         <RoundedPressable
