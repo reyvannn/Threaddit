@@ -7,19 +7,21 @@ import {Feather, MaterialCommunityIcons, Octicons} from "@expo/vector-icons";
 import {IconButton} from "@/src/components/IconButton";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
 import React, {memo} from "react";
+import {UseMutateFunction} from "@tanstack/react-query";
 
 type CommentListItemProps = {
     comment: Comment;
     onReply?: (cmnt: Comment) => void;
     replyToId?: string | null;
     composerValue?: string;
-    onChangeComposer?: (value:string) => void;
-    depth?: number
+    onChangeComposer?: (value: string) => void;
+    onSubmit?: any;
+    depth?: number;
 };
 
 const defaultImage = require("@/assets/r_placeholder2.png")
 
-function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeComposer, depth = 0 }: CommentListItemProps) {
+function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeComposer, onSubmit, depth = 0 }: CommentListItemProps) {
     const MAX = 140;
     const [replyHeight, setReplyHeight] = React.useState(40);
     const [showReplies, setShowReplies] = React.useState(false);
@@ -128,7 +130,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                             setText(newText);
                             onChangeComposer?.(newText)
                             if (newText.length == 0) {
-                                setReplyHeight(32)
+                                setReplyHeight(40)
                             }
                         }}
                         onContentSizeChange={(e) => {
@@ -163,7 +165,17 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 bg: {default: '#0745ab', pressed: "#002d71", hovered: "#003585"},
                                 text: {default:"white", hovered:"white", pressed:"white"}
                             }}
-                            onPress={() => console.log("Submit pressed")}
+                            // onPress={() => console.log("Submit pressed")}
+                            onPress={() => {
+                                if (onSubmit) {
+                                    console.log("Submitting comment:", text)
+                                    onSubmit({
+                                        text: text,
+                                        parentId: comment.id,
+                                    })
+                                    setShowReplies(true)
+                                }
+                            }}
                         />
                     </View>}
                 </View>
@@ -193,6 +205,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                     replyToId={replyToId}
                                     composerValue={composerValue}
                                     onChangeComposer={onChangeComposer}
+                                    onSubmit={onSubmit}
                                     depth={depth + 1}                 // pass depth down
                                 />
                             ))}
@@ -217,6 +230,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 replyToId={replyToId}
                                 composerValue={composerValue}
                                 onChangeComposer={onChangeComposer}
+                                onSubmit={onSubmit}
                                 depth={depth + 1}
                             />
                         ))}

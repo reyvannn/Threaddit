@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View } from 'react-native'
 import {styles} from '@/src/features/auth/styles';
-import OAuthButton from "@/src/features/auth/components/OAuthButton";
 import {Alert} from "react-native";
 
 function SignUpScreen() {

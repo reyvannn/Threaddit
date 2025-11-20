@@ -5,13 +5,15 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {useLocalSearchParams, Stack, router} from "expo-router";
 import PostListItem from "@/src/features/posts/PostListItem";
 import CommentListItem from "@/src/features/comments/CommentListItem";
-import React, {useCallback, useMemo} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
 import {UseMutateFunction, useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {deletePost, fetchPostById} from "@/src/features/posts/api";
 import {AntDesign, MaterialCommunityIcons} from "@expo/vector-icons";
 import {useAuth} from "@clerk/clerk-expo";
 import {fetchAndParseComments} from "@/src/features/comments/lib";
+import {insertComment} from "@/src/features/comments/api";
+import {containsComment} from "@/src/lib/utils";
 
 export default function post() {
 
@@ -37,10 +39,11 @@ export default function post() {
     const [replyText, setReplyText] = React.useState<string>("");
     const [replyToId, setReplyToId] = React.useState<string | null>(null);
 
+    const [scrollToId, setScrollToId] = React.useState<string | null>(null);
+
     /**
      * Fetch the comments for the post from the database.
      */
-
     const {data: comments, error:commentsError, isError} = useQuery({
         queryKey: ["comments", id],
         queryFn: () => fetchAndParseComments(id),
@@ -50,11 +53,6 @@ export default function post() {
     if (isError) {
         console.error(commentsError)
     }
-
-    // const postComments = useMemo(
-    //     () => comments?.filter(comment => comment.post_id === id),
-    //     [id]
-    // );
 
     const postComments = comments ?? []
 
@@ -83,36 +81,6 @@ export default function post() {
             setReplyText("");
         },
         [setReplyToId, setReplyText]
-    );
-
-    /**
-     * Static renderItem function for the FlatList component.
-     */
-    const renderItem = useCallback(
-        ({item}: any) => {
-            const isTarget = replyToId === item.id
-            return <CommentListItem
-                comment={item}
-                onReply={handleReply}
-                replyToId={replyToId}
-                composerValue={isTarget ? replyText : undefined}
-                onChangeComposer={isTarget ? setReplyText : undefined}
-            />
-        },
-        [replyToId, replyText, handleReply, setReplyText]
-    );
-
-    /**
-     * Header component for the FlatList component (includes the Post).
-     */
-    const header = useMemo(
-        () => (
-            <View style={styles.centeredContainer}>
-                <PostListItem post={post!} isDetailedPost />
-                <View style={{ height: 8, backgroundColor: "#f1f1f1" }} />
-            </View>
-        ),
-        [post]
     );
 
     /**
@@ -163,7 +131,94 @@ export default function post() {
         }
     })
 
-    // const deletePost = () => console.log("Post deleted")
+    const {mutate: submitComment} = useMutation({
+        mutationFn: async ({text, parentId}: {text: string, parentId: string | null}) => {
+            if (!post) {
+                throw new Error("Post not found");
+            }
+            if (!text || text.length === 0) {
+                console.log("Comment cannot be empty: " + text)
+                throw new Error("Comment cannot be empty");
+            }
+            return insertComment({
+                comment: text,
+                post_id: id,
+                user_id: userId ?? undefined,
+                parent_id: parentId,
+            })
+        },
+        onSuccess: (data) => {
+            console.log(data)
+            queryClient.invalidateQueries({queryKey: ["comments", id]})
+
+            // Scroll to the newly added comment if it's not the root comment
+            if (data && data.id) {
+                setScrollToId(data.id)
+            }
+
+            // Clear root input
+            setCommentText("");
+            setCommentHeight(40)
+            // Clear reply input
+            setReplyText("")
+            setReplyToId(null)
+        },
+        onError: (error) => {
+            console.error(error)
+            Alert.alert("Error", error.message ?? "Failed to submit comment", undefined, {cancelable: true})
+        }
+    })
+
+    useEffect(() => {
+        if (scrollToId && postComments.length > 0) {
+            // Find the index of the comment to scroll to
+            const index = postComments.findIndex(
+                (rootComment) => containsComment(rootComment, scrollToId)
+            );
+            if (index !== -1 && listRef.current) {
+                // Use a small timeout to ensure the FlatList has time to render the new data
+                setTimeout(() => {
+                    listRef.current?.scrollToIndex({
+                        index,
+                        animated: true,
+                        viewPosition: 0.5,
+                    });
+                }, 25)
+                setScrollToId(null)
+            }
+        }
+    }, [postComments, scrollToId, listRef]);
+
+    /**
+     * Static renderItem function for the FlatList component.
+     */
+    const renderItem = useCallback(
+        ({item}: any) => {
+            const isTarget = replyToId === item.id
+            return <CommentListItem
+                comment={item}
+                onReply={handleReply}
+                replyToId={replyToId}
+                composerValue={isTarget ? replyText : undefined}
+                onChangeComposer={isTarget ? setReplyText : undefined}
+                onSubmit={submitComment}
+            />
+        },
+        [replyToId, replyText, handleReply, setReplyText]
+    );
+
+    /**
+     * Header for the FlatList component (includes the Post).
+     */
+    const header = useMemo(
+        () => (
+            <View style={styles.centeredContainer}>
+                <PostListItem post={post!} isDetailedPost />
+                <View style={{ height: 8, backgroundColor: "#f1f1f1" }} />
+            </View>
+        ),
+        [post]
+    );
 
     /**
      * Render the post page.
@@ -286,7 +341,10 @@ export default function post() {
                                 bg: {default: '#0745ab', pressed: "#002d71", hovered: "#003585"},
                                 text: {default: "white", hovered: "white", pressed: "white"}
                             }}
-                            onPress={() => console.log("Submit pressed")}
+                            onPress={() => submitComment({
+                                text: commentText,
+                                parentId: null
+                            })}
                         />
                     </View>}
                 </View>
