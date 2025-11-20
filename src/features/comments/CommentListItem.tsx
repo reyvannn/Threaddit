@@ -1,4 +1,4 @@
-// /components/CommentListItem.tsx
+// /features/comments/CommentListItem.tsx
 
 import {Comment} from "@/src/types/types";
 import {View, Text, Image, StyleSheet, Pressable, TextInput, Platform} from "react-native";
@@ -7,22 +7,35 @@ import {Feather, MaterialCommunityIcons, Octicons} from "@expo/vector-icons";
 import {IconButton} from "@/src/components/IconButton";
 import {RoundedPressable} from "@/src/components/RoundedPressable";
 import React, {memo} from "react";
+import {UseMutateFunction} from "@tanstack/react-query";
 
 type CommentListItemProps = {
     comment: Comment;
     onReply?: (cmnt: Comment) => void;
     replyToId?: string | null;
     composerValue?: string;
-    onChangeComposer?: (value:string) => void;
-    depth?: number
+    onChangeComposer?: (value: string) => void;
+    onSubmit?: any;
+    depth?: number;
 };
 
 const defaultImage = require("@/assets/r_placeholder2.png")
 
-function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeComposer, depth = 0 }: CommentListItemProps) {
+function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeComposer, onSubmit, depth = 0 }: CommentListItemProps) {
     const MAX = 140;
     const [replyHeight, setReplyHeight] = React.useState(40);
     const [showReplies, setShowReplies] = React.useState(false);
+    const [text, setText] = React.useState<string>(composerValue ?? "");
+
+    // Sync the local state with the composerValue parent prop if it changes
+    React.useEffect(() => {
+        if (composerValue !== undefined) {
+            setText(composerValue);
+        } else {
+            setText("");
+        }
+    }, [composerValue]);
+
     const image = comment.user.image ?? defaultImage // DEFAULT IMAGE
 
     const isReplyTarget = replyToId === comment.id;
@@ -112,18 +125,19 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                             maxHeight: MAX,
                             height: replyHeight,
                         }}
-                        value={composerValue}
-                        onChangeText={(text) => {
-                            onChangeComposer?.(text)
-                            if (text.length == 0) {
-                                setReplyHeight(32)
+                        value={text}
+                        onChangeText={(newText) => {
+                            setText(newText);
+                            onChangeComposer?.(newText)
+                            if (newText.length == 0) {
+                                setReplyHeight(40)
                             }
                         }}
                         onContentSizeChange={(e) => {
                             setReplyHeight(e.nativeEvent.contentSize.height)
                         }}
                     />
-                    {composerValue != null && composerValue.length > 0 && <View
+                    {text.length > 0 && <View
                         style={
                             [
                                 {flexDirection:"row", marginVertical:5, justifyContent:"flex-end", gap:15, paddingRight:10},
@@ -138,10 +152,11 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 text: {default:"black"}
                             }}
                             onPress={() => {
+                                setText("")
                                 if (onChangeComposer) {
                                     onChangeComposer("")
-                                    setReplyHeight(40)
                                 }
+                                setReplyHeight(40)
                             }}
                         />
                         <RoundedPressable
@@ -150,7 +165,17 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 bg: {default: '#0745ab', pressed: "#002d71", hovered: "#003585"},
                                 text: {default:"white", hovered:"white", pressed:"white"}
                             }}
-                            onPress={() => console.log("Submit pressed")}
+                            // onPress={() => console.log("Submit pressed")}
+                            onPress={() => {
+                                if (onSubmit) {
+                                    console.log("Submitting comment:", text)
+                                    onSubmit({
+                                        text: text,
+                                        parentId: comment.id,
+                                    })
+                                    setShowReplies(true)
+                                }
+                            }}
                         />
                     </View>}
                 </View>
@@ -180,6 +205,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                     replyToId={replyToId}
                                     composerValue={composerValue}
                                     onChangeComposer={onChangeComposer}
+                                    onSubmit={onSubmit}
                                     depth={depth + 1}                 // pass depth down
                                 />
                             ))}
@@ -204,6 +230,7 @@ function CommentListItem({ comment, onReply, replyToId, composerValue, onChangeC
                                 replyToId={replyToId}
                                 composerValue={composerValue}
                                 onChangeComposer={onChangeComposer}
+                                onSubmit={onSubmit}
                                 depth={depth + 1}
                             />
                         ))}

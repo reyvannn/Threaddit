@@ -1,5 +1,5 @@
 import {supabase} from "@/src/lib/supabase";
-import {Comment, CommentFetch} from "@/src/features/comments/types";
+import {Comment, CommentFetch, InsertComment} from "@/src/features/comments/types";
 
 export const fetchComments = async (postId: string) => {
     const {data, error} = await supabase
@@ -7,6 +7,18 @@ export const fetchComments = async (postId: string) => {
         .select("*, user:users!comments_user_id_fkey(*)")
         .eq("post_id", postId)
         .order("created_at", {ascending: true});
+    if (error) {
+        throw error;
+    }
+    return data;
+}
+
+export const insertComment = async (comment: InsertComment) => {
+    const {data, error} = await supabase
+        .from("comments")
+        .insert(comment)
+        .select()
+        .single();
     if (error) {
         throw error;
     }

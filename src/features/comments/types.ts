@@ -1,4 +1,4 @@
-import {Tables} from "@/src/types/database.types";
+import {Tables, TablesInsert} from "@/src/types/database.types";
 
 type CommentType = Tables<"comments">
 
@@ -11,3 +11,5 @@ export type Comment = CommentType & {
 export type CommentFetch = CommentType & {
     user: Tables<"users">
 }
+
+export type InsertComment = TablesInsert<"comments">
